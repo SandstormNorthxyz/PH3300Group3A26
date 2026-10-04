@@ -60,39 +60,49 @@ if __name__ == "__main__":
 
 
     #analytical plot
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(14, 5))
-    ax1.plot(potential.coord, potential.potential_a, label="Analytical")
-    ax1.set_xlabel("z")
-    ax1.set_ylabel("Electric Potential (V)")
-    ax1.set_title("Analytical Electric Potential")
-    ax1.grid(True)
-    ax1.legend()
+    # fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(14, 5))
+    # ax = ax1
+    fig, ax = plt.subplots(1, 1, figsize=(16, 10))
+    ax.plot(potential.coord, potential.potential_a, label="Analytical")
+    ax.set_xlabel("z")
+    ax.set_ylabel("Electric Potential (V)")
+    ax.set_title("Analytical Electric Potential")
+    ax.grid(True)
+    ax.legend()
+    plt.show()
     #numerical plot
+    # ax = ax2
+    fig, ax = plt.subplots(1, 1, figsize=(16, 10))
     for i, N in enumerate(n_array_disp):
-        ax2.plot(potential.coord, n_potential[n_array_lookup[N]], label=f"N = {N}")
-    ax2.set_xlabel("z")
-    ax2.set_ylabel("Electric Potential (V)")
-    ax2.set_title("Numerical Electric Potential")
-    ax2.grid(True)
-    ax2.legend()
+        ax.plot(potential.coord, n_potential[n_array_lookup[N]], label=f"N = {N}")
+    ax.set_xlabel("z")
+    ax.set_ylabel("Electric Potential (V)")
+    ax.set_title("Numerical Electric Potential")
+    ax.grid(True)
+    ax.legend()
+    plt.show()
     #error plot
     #TODO fix title displaying incorrectly
+    # ax = ax3
+    fig, ax = plt.subplots(1, 1, figsize=(16, 10))
     for i, N in enumerate(n_array_disp):
-        ax3.plot(potential.coord, n_error[n_array_lookup[N]], label=f"N = {N}")
-    ax3.set_xlabel("z")
-    ax3.set_ylabel("Percent Error")
-    ax3.set_title("Percent Error Between Analytical and Numerical Solutions")
-    ax3.grid(True)
-    ax3.legend()
+        ax.plot(potential.coord, n_error[n_array_lookup[N]], label=f"N = {N}")
+    ax.set_xlabel("z")
+    ax.set_ylabel("Percent Error")
+    ax.set_title("Percent Error Between Analytical and Numerical Solutions")
+    ax.grid(True)
+    ax.legend()
     # Prevent labels from overlapping
     plt.tight_layout()
-
     plt.show()
 
-
+    fig, (ax1) = plt.subplots(1, 1, figsize=(16, 10))
+    ax = ax1
     #TODO align 0 on y axis to true 0, make integer y axis
-    plt.plot(n_array[:n_array_lookup[20]], np.amax(n_error, axis=1)[:n_array_lookup[20]])
-    plt.xlabel("Shells")
-    plt.ylabel("Error (%)")
-    plt.title("Percent Error vs. Number of shells in numerical method")
+    ax.plot(n_array[:n_array_lookup[20]], np.amax(n_error, axis=1)[:n_array_lookup[20]])
+    ax.set_xlabel("Shells")
+    ax.set_ylabel("Error (%)")
+    ax.set_title("Percent Error vs. Number of shells in numerical method")
+    plt.xlim([2, 20])
+    plt.ylim([0, 50])
     plt.show()
