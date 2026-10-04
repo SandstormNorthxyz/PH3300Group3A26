@@ -44,7 +44,10 @@ class Potential:
 
 if __name__ == "__main__":
     potential = Potential(-5, 5, 500)
-    n_array = [2, 5, 10, 100, 1000]
+    # n_array = np.logspace(0, 3, 20, dtype=int)
+    n_array = np.arange(2, 1001, dtype=int)
+    n_array_lookup = {n_array[i]:i for i in range(len(n_array))}
+    n_array_disp = [2, 5, 10, 100, 1000]
     n_potential = np.zeros((len(n_array), 500))
     n_error = np.zeros((len(n_array), 500))
     potential.generate_potential_analytically()
@@ -54,7 +57,7 @@ if __name__ == "__main__":
         n_error[i] = np.abs((n_potential[i] - potential.potential_a) / potential.potential_a)
         n_error[i] = n_error[i] * 100
 
-    
+
 
     #analytical plot
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(14, 5))
@@ -65,16 +68,17 @@ if __name__ == "__main__":
     ax1.grid(True)
     ax1.legend()
     #numerical plot
-    for i, N in enumerate(n_array):
-        ax2.plot(potential.coord, n_potential[i], label=f"N = {N}")
+    for i, N in enumerate(n_array_disp):
+        ax2.plot(potential.coord, n_potential[n_array_lookup[N]], label=f"N = {N}")
     ax2.set_xlabel("z")
     ax2.set_ylabel("Electric Potential (V)")
     ax2.set_title("Numerical Electric Potential")
     ax2.grid(True)
     ax2.legend()
     #error plot
-    for i, N in enumerate(n_array):
-        ax3.plot(potential.coord, n_error[i], label=f"N = {N}")
+    #TODO fix title displaying incorrectly
+    for i, N in enumerate(n_array_disp):
+        ax3.plot(potential.coord, n_error[n_array_lookup[N]], label=f"N = {N}")
     ax3.set_xlabel("z")
     ax3.set_ylabel("Percent Error")
     ax3.set_title("Percent Error Between Analytical and Numerical Solutions")
@@ -83,4 +87,12 @@ if __name__ == "__main__":
     # Prevent labels from overlapping
     plt.tight_layout()
 
+    plt.show()
+
+
+    #TODO align 0 on y axis to true 0, make integer y axis
+    plt.plot(n_array[:n_array_lookup[20]], np.amax(n_error, axis=1)[:n_array_lookup[20]])
+    plt.xlabel("Shells")
+    plt.ylabel("Error (%)")
+    plt.title("Percent Error vs. Number of shells in numerical method")
     plt.show()
