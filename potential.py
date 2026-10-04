@@ -2,6 +2,8 @@
 #simple plot made as example
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator, LogLocator
+
 
 #potential class
 class Potential:
@@ -57,22 +59,24 @@ if __name__ == "__main__":
         n_error[i] = np.abs((n_potential[i] - potential.potential_a) / potential.potential_a)
         n_error[i] = n_error[i] * 100
 
-
+    figsize = (10, 6)
 
     #analytical plot
     # fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(14, 5))
     # ax = ax1
-    fig, ax = plt.subplots(1, 1, figsize=(16, 10))
+    fig, ax = plt.subplots(1, 1, figsize=figsize)
     ax.plot(potential.coord, potential.potential_a, label="Analytical")
     ax.set_xlabel("z")
     ax.set_ylabel("Electric Potential (V)")
     ax.set_title("Analytical Electric Potential")
     ax.grid(True)
     ax.legend()
+    plt.tight_layout()
     plt.show()
+
     #numerical plot
     # ax = ax2
-    fig, ax = plt.subplots(1, 1, figsize=(16, 10))
+    fig, ax = plt.subplots(1, 1, figsize=figsize)
     for i, N in enumerate(n_array_disp):
         ax.plot(potential.coord, n_potential[n_array_lookup[N]], label=f"N = {N}")
     ax.set_xlabel("z")
@@ -80,11 +84,12 @@ if __name__ == "__main__":
     ax.set_title("Numerical Electric Potential")
     ax.grid(True)
     ax.legend()
+    plt.tight_layout()
     plt.show()
+
     #error plot
-    #TODO fix title displaying incorrectly
     # ax = ax3
-    fig, ax = plt.subplots(1, 1, figsize=(16, 10))
+    fig, ax = plt.subplots(1, 1, figsize=figsize)
     for i, N in enumerate(n_array_disp):
         ax.plot(potential.coord, n_error[n_array_lookup[N]], label=f"N = {N}")
     ax.set_xlabel("z")
@@ -96,13 +101,48 @@ if __name__ == "__main__":
     plt.tight_layout()
     plt.show()
 
-    fig, (ax1) = plt.subplots(1, 1, figsize=(16, 10))
+
+    #error vs number of shells (log-log)
+    fig, (ax1) = plt.subplots(1, 1, figsize=figsize)
     ax = ax1
-    #TODO align 0 on y axis to true 0, make integer y axis
-    ax.plot(n_array[:n_array_lookup[20]], np.amax(n_error, axis=1)[:n_array_lookup[20]])
+
+    ax.plot(n_array, np.amax(n_error, axis=1), 'rx-')
+
     ax.set_xlabel("Shells")
     ax.set_ylabel("Error (%)")
-    ax.set_title("Percent Error vs. Number of shells in numerical method")
-    plt.xlim([2, 20])
-    plt.ylim([0, 50])
+    ax.set_title("Percent Error vs. Number of Shells (log-log scale)")
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+
+    ax.xaxis.set_major_locator(LogLocator(base=10, subs='all'))
+    ax.xaxis.set_major_formatter('{x:.0f}')
+    ax.tick_params(axis='x', labelrotation=50)
+
+    ax.grid(True)
+
+    plt.tight_layout()
+    plt.show()
+
+
+    # error vs number of shells (log-linear)
+    fig, (ax1) = plt.subplots(1, 1, figsize=figsize)
+    ax = ax1
+
+    ax.plot(n_array, np.amax(n_error, axis=1), 'rx-')
+
+    ax.set_xlabel("Shells")
+    ax.set_ylabel("Error (%)")
+    ax.set_title("Percent Error vs. Number of Shells (log-linear scale)")
+
+    ax.set_xscale("log")
+    # ax.set_yscale("log")
+
+    ax.xaxis.set_major_locator(LogLocator(base=10, subs='all'))
+    ax.xaxis.set_major_formatter('{x:.0f}')
+    ax.tick_params(axis='x', labelrotation=50)
+
+    ax.grid(True)
+
+    plt.tight_layout()
     plt.show()
