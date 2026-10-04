@@ -46,18 +46,26 @@ if __name__ == "__main__":
     potential = Potential(-5, 5, 500)
     n_array = [2, 5, 10, 100, 1000]
     n_potential = np.zeros((len(n_array), 500))
+    n_error = np.zeros((len(n_array), 500))
     potential.generate_potential_analytically()
+
+    for i, N in enumerate(n_array):
+        n_potential[i] = potential.generate_potential_numerically(N)
+        n_error[i] = np.abs((n_potential[i] - potential.potential_a) / potential.potential_a)
+        n_error[i] = n_error[i] * 100
+
+    
+
     #analytical plot
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(14, 5))
     ax1.plot(potential.coord, potential.potential_a, label="Analytical")
     ax1.set_xlabel("z")
-    ax1.set_ylabel("Electric Potentil (V)")
+    ax1.set_ylabel("Electric Potential (V)")
     ax1.set_title("Analytical Electric Potential")
     ax1.grid(True)
     ax1.legend()
     #numerical plot
     for i, N in enumerate(n_array):
-        n_potential[i] = potential.generate_potential_numerically(N)
         ax2.plot(potential.coord, n_potential[i], label=f"N = {N}")
     ax2.set_xlabel("z")
     ax2.set_ylabel("Electric Potential (V)")
@@ -66,10 +74,7 @@ if __name__ == "__main__":
     ax2.legend()
     #error plot
     for i, N in enumerate(n_array):
-        n_potential[i] = potential.generate_potential_numerically(N)
-        error = np.abs((n_potential[i] - potential.potential_a) / potential.potential_a)
-        error = error * 100
-        ax3.plot(potential.coord, error, label=f"N = {N}")
+        ax3.plot(potential.coord, n_error[i], label=f"N = {N}")
     ax3.set_xlabel("z")
     ax3.set_ylabel("Percent Error")
     ax3.set_title("Percent Error Between Analytical and Numerical Solutions")
