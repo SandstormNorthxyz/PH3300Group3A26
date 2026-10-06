@@ -1,5 +1,6 @@
 #potential class to then plot
 #simple plot made as example
+import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator, LogLocator
@@ -16,7 +17,12 @@ class Potential:
         self.radius = radius
         self.sigma = sigma
         self.epsilon_0 = 8.854e-12
-        self.coord = np.linspace(z_min, z_max, z_steps)
+        self.coord = np.concatenate([
+            np.geomspace(z_min, -0.00001, z_steps//2),
+            np.geomspace(0.00001, z_max, z_steps//2)
+        ])
+        # print(self.coord)
+        # self.coord = np.linspace(z_min, z_max, z_steps)
     
     #N is the precision of the integral
     #z_steps is the number of steps along the z axis to be counted
@@ -45,13 +51,14 @@ class Potential:
         return self.potential_a
 
 if __name__ == "__main__":
-    potential = Potential(-5, 5, 500)
+    spatial_samples=500
+    potential = Potential(-5, 5, spatial_samples)
     # n_array = np.logspace(0, 3, 20, dtype=int)
     n_array = np.arange(2, 1001, dtype=int)
     n_array_lookup = {n_array[i]:i for i in range(len(n_array))}
-    n_array_disp = [2, 5, 10, 100, 1000]
-    n_potential = np.zeros((len(n_array), 500))
-    n_error = np.zeros((len(n_array), 500))
+    n_array_disp = [2, 3, 4, 5, 10, 20, 100, 1000]
+    n_potential = np.zeros((len(n_array), spatial_samples))
+    n_error = np.zeros((len(n_array), spatial_samples))
     potential.generate_potential_analytically()
 
     for i, N in enumerate(n_array):
@@ -64,53 +71,95 @@ if __name__ == "__main__":
     #analytical plot
     # fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(14, 5))
     # ax = ax1
-    fig, ax = plt.subplots(1, 1, figsize=figsize)
+    fig, ax = plt.subplots(1, 1, figsize=figsize, dpi=400)
     ax.plot(potential.coord, potential.potential_a, label="Analytical")
-    ax.set_xlabel("z")
+    ax.set_xlabel("z (m)")
     ax.set_ylabel("Electric Potential (V)")
     ax.set_title("Analytical Electric Potential")
     ax.grid(True)
     ax.legend()
+    ax.set_ylim([0, np.amax(potential.potential_a)*1.1])
     plt.tight_layout()
     plt.show()
 
     #numerical plot
     # ax = ax2
-    fig, ax = plt.subplots(1, 1, figsize=figsize)
-    for i, N in enumerate(n_array_disp):
+    fig, ax = plt.subplots(1, 1, figsize=figsize, dpi=400)
+    for N in n_array_disp:
         ax.plot(potential.coord, n_potential[n_array_lookup[N]], label=f"N = {N}")
-    ax.set_xlabel("z")
+    ax.plot(potential.coord, potential.potential_a, label="Analytical")
+    # ax.set_xlim([-0.5, 0.5])
+    ax.set_xlabel("z (m)")
     ax.set_ylabel("Electric Potential (V)")
     ax.set_title("Numerical Electric Potential")
     ax.grid(True)
     ax.legend()
+    ax.set_ylim([0, np.amax(potential.potential_a)*1.1])
     plt.tight_layout()
     plt.show()
 
+    # numerical plot (zoomed)
+    # ax = ax2
+    fig, ax = plt.subplots(1, 1, figsize=figsize, dpi=400)
+    for N in n_array_disp:
+        ax.plot(potential.coord, n_potential[n_array_lookup[N]], label=f"N = {N}")
+    ax.plot(potential.coord, potential.potential_a, label="Analytical")
+    ax.set_xlim([-0.5, 0.5])
+    ax.set_xlabel("z (m)")
+    ax.set_ylabel("Electric Potential (V)")
+    ax.set_title("Numerical Electric Potential")
+    ax.grid(True)
+    ax.legend()
+    ax.set_ylim([0, np.amax(potential.potential_a) * 1.1])
+    plt.tight_layout()
+    plt.show()
+
+    # # numerical plot (all shell numbers)
+    # # ax = ax2
+    # fig, ax = plt.subplots(1, 1, figsize=figsize, dpi=400)
+    # cmap = matplotlib.colormaps['plasma']
+    # norm = matplotlib.colors.LogNorm(2, np.amax(n_array_disp))
+    #
+    # for N in n_array_disp:
+    #     print(cmap(norm(N)))
+    #     ax.plot(potential.coord, n_potential[n_array_lookup[N]], label=f"N = {N}", color=cmap(norm(N)))
+    # ax.set_xlabel("z (m)")
+    # ax.set_ylabel("Electric Potential (V)")
+    # ax.set_title("Numerical Electric Potential")
+    # ax.grid(True)
+    # # ax.legend()
+    # # ax.set_yscale('log')
+    # ax.set_xlim([-0.5, 0.5])
+    # ax.set_ylim([0, np.amax(potential.potential_a) * 1.1])
+    # plt.tight_layout()
+    # plt.show()
+
     #error plot
     # ax = ax3
-    fig, ax = plt.subplots(1, 1, figsize=figsize)
-    for i, N in enumerate(n_array_disp):
+    fig, ax = plt.subplots(1, 1, figsize=figsize, dpi=400)
+    for N in n_array_disp:
         ax.plot(potential.coord, n_error[n_array_lookup[N]], label=f"N = {N}")
-    ax.set_xlabel("z")
+    ax.set_xlabel("z (m)")
+    ax.set_xlim([-0.5, 0.5])
+    # ax.set_yscale('log')
     ax.set_ylabel("Percent Error")
     ax.set_title("Percent Error Between Analytical and Numerical Solutions")
     ax.grid(True)
-    ax.legend()
+    ax.legend(loc='upper right')
     # Prevent labels from overlapping
     plt.tight_layout()
     plt.show()
 
 
     #error vs number of shells (log-log)
-    fig, (ax1) = plt.subplots(1, 1, figsize=figsize)
+    fig, (ax1) = plt.subplots(1, 1, figsize=figsize, dpi=400)
     ax = ax1
 
     ax.plot(n_array, np.amax(n_error, axis=1), 'rx-')
 
     ax.set_xlabel("Shells")
     ax.set_ylabel("Error (%)")
-    ax.set_title("Percent Error vs. Number of Shells (log-log scale)")
+    ax.set_title("Max Percent Error vs. Number of Rings (log-log scale)")
 
     ax.set_xscale("log")
     ax.set_yscale("log")
@@ -126,14 +175,14 @@ if __name__ == "__main__":
 
 
     # error vs number of shells (log-linear)
-    fig, (ax1) = plt.subplots(1, 1, figsize=figsize)
+    fig, (ax1) = plt.subplots(1, 1, figsize=figsize, dpi=400)
     ax = ax1
 
     ax.plot(n_array, np.amax(n_error, axis=1), 'rx-')
 
     ax.set_xlabel("Shells")
     ax.set_ylabel("Error (%)")
-    ax.set_title("Percent Error vs. Number of Shells (log-linear scale)")
+    ax.set_title("Max Percent Error vs. Number of Rings (log-linear scale)")
 
     ax.set_xscale("log")
     # ax.set_yscale("log")
